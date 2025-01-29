@@ -13,8 +13,7 @@ pinia.use(piniaPersist)
 app.use(pinia)
 app.use(router)
 app.use(api, {
-    baseUrl: import.meta.env.VITE_API_BASE_URL,
-    key: import.meta.env.VITE_API_KEY
+    baseUrl: import.meta.env.VITE_API_BASE_URL
 })
 
 app.mount('#app')
