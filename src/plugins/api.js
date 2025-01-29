@@ -1,20 +1,20 @@
 import axios from "axios";
-import { useAuthStore } from "./stores/authentification";
-
-const store = useAuthStore();
+import {useAuthStore} from "@/stores/authentification.js";
 
 export default {
-    install: (app, {baseUrl}) => {
-        if(!store.user.apikey) {
-            return;
-        }
-        const api = axios.create({
-            baseURL: baseUrl,
-            headers: {
-                "Content-type": "application/json",
-                "Authorization": `key=${store.user.apikey}`,
-            },
-        });
-        app.config.globalProperties.$api = api;
-    }
-}
+  install: (app, {baseUrl}) => {
+    app.config.globalProperties.$api = () => {
+      const store = useAuthStore();
+      if (!store.user.apikey) {
+        return;
+      }
+      return axios.create({
+        baseURL: baseUrl,
+        headers: {
+          "Content-type": "application/json",
+          "Authorization": `key=${store.user.apikey}`,
+        },
+      });
+    };
+  }
+};
