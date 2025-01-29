@@ -6,7 +6,7 @@ export default {
             baseURL: baseUrl,
             headers: {
                 "Content-type": "application/json",
-                "Authorization": `key=${key}`i
+                "Authorization": `key=${key}`
             },
         });
         app.config.globalProperties.$api = api;
