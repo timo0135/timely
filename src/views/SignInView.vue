@@ -1,13 +1,15 @@
 <script setup>
 import {ref} from 'vue';
-import FormButton from "@/components/FormButtonComponent.vue";
 import {useAuthStore} from "@/stores/authentification.js";
 import router from "@/router/index.js";
+import FormComponent from "@/components/form/FormComponent.vue";
 
 const apikey = ref('');
 
 const store = useAuthStore();
-
+const fields = [
+  {name: 'apiKey', label: 'Api Key', type: 'text', required: true, model: apikey},
+];
 const signIn = async () => {
   try {
     store.login(apikey.value);
@@ -22,14 +24,8 @@ const signIn = async () => {
 <template>
   <div>
     <h2>Sign In</h2>
-    <form @submit.prevent="signIn">
-      <div>
-        <label for="apikey">Api Key</label>
-        <input id="apikey" v-model="apikey" type="apikey" required/>
-      </div>
-      <FormButton label="Sign In" type="submit"/>
-      <p class="blue" @click="router.push('/signup')">Pas de compte ?</p>
-    </form>
+    <FormComponent :fields="fields" :onSubmit="signIn"/>
+    <p class="blue" @click="router.push('/signup')">Pas de compte ?</p>
   </div>
 </template>
 
@@ -51,6 +47,7 @@ h2 {
 
 form div {
   margin-bottom: 1rem;
+  max-width: 600px;
 }
 
 label {
@@ -65,6 +62,7 @@ input {
   border: 1px solid #ccc;
   border-radius: 0.25rem;
   box-sizing: border-box;
+  max-width: 100%;
 }
 
 button {

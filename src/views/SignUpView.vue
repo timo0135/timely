@@ -1,8 +1,8 @@
 <script setup>
 import {ref, watch} from 'vue';
-import FormButton from "@/components/FormButtonComponent.vue";
 import {useAuthStore} from "@/stores/authentification.js";
 import router from "@/router/index.js";
+import FormComponent from "@/components/form/FormComponent.vue";
 
 const store = useAuthStore();
 
@@ -10,8 +10,13 @@ const name = ref('');
 const email = ref('');
 const apiKey = ref('');
 
+const fields = [
+  {name: 'name', label: 'Name', type: 'text', required: true, model: name},
+  {name: 'email', label: 'Email', type: 'email', required: true, model: email}
+];
 const signUp = async () => {
   try {
+    console.log(email.value, name.value);
     await store.register(email.value, name.value);
     apiKey.value = store.user.apikey;
     await router.push('/home');
@@ -30,21 +35,8 @@ watch(() => store.user.apikey, (newApiKey) => {
 <template>
   <div>
     <h2>Sign Up</h2>
-    <form @submit.prevent="signUp">
-      <div>
-        <label for="name">Name:</label>
-        <input id="name" v-model="name" type="text" required/>
-      </div>
-      <div>
-        <label for="email">Email:</label>
-        <input id="email" v-model="email" type="email" required/>
-      </div>
-      <FormButton label="Sign Up" type="submit"/>
-      <p class="blue" @click="router.push('/signin')">Déjà un compte ?</p>
-    </form>
-    <div v-if="apiKey">
-      <p>Your API Key: {{ apiKey }}</p>
-    </div>
+    <FormComponent :fields="fields" :onSubmit="signUp"/>
+    <p class="blue" @click="router.push('/signin')">Déjà un compte ?</p>
   </div>
 </template>
 
