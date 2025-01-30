@@ -1,21 +1,30 @@
 <script setup>
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
 import FormButton from "@/components/FormButtonComponent.vue";
 import {useAuthStore} from "@/stores/authentification.js";
+import router from "@/router/index.js";
 
 const store = useAuthStore();
 
 const name = ref('');
 const email = ref('');
+const apiKey = ref('');
 
-const signUp = () => {
+const signUp = async () => {
   try {
-    store.register(email.value, name.value);
+    await store.register(email.value, name.value);
+    apiKey.value = store.user.apikey;
+    await router.push('/home');
     console.log(store.user);
   } catch (error) {
     console.error(error);
   }
 };
+
+
+watch(() => store.user.apikey, (newApiKey) => {
+  apiKey.value = newApiKey;
+});
 </script>
 
 <template>
@@ -31,7 +40,11 @@ const signUp = () => {
         <input id="email" v-model="email" type="email" required/>
       </div>
       <FormButton label="Sign Up" type="submit"/>
+      <p class="blue" @click="router.push('/signin')">Déjà un compte ?</p>
     </form>
+    <div v-if="apiKey">
+      <p>Your API Key: {{ apiKey }}</p>
+    </div>
   </div>
 </template>
 
@@ -81,5 +94,10 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.blue {
+  cursor: pointer;
+  color: #007bff;
 }
 </style>

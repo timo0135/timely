@@ -2,14 +2,16 @@
 import {ref} from 'vue';
 import FormButton from "@/components/FormButtonComponent.vue";
 import {useAuthStore} from "@/stores/authentification.js";
+import router from "@/router/index.js";
 
 const apikey = ref('');
 
 const store = useAuthStore();
 
-const signIn = () => {
+const signIn = async () => {
   try {
     store.login(apikey.value);
+    await router.push('/home');
     console.log(store.user);
   } catch (error) {
     console.error(error);
@@ -26,6 +28,7 @@ const signIn = () => {
         <input id="apikey" v-model="apikey" type="apikey" required/>
       </div>
       <FormButton label="Sign In" type="submit"/>
+      <p class="blue" @click="router.push('/signup')">Pas de compte ?</p>
     </form>
   </div>
 </template>
@@ -77,5 +80,10 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.blue {
+  cursor: pointer;
+  color: #007bff;
 }
 </style>
