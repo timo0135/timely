@@ -1,6 +1,6 @@
 <script setup>
-import {defineProps} from 'vue';
-import {marked} from 'marked';
+import { defineProps } from 'vue';
+// import {marked} from 'marked';
 
 defineProps({
   goal: {

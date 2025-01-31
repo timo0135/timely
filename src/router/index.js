@@ -1,15 +1,62 @@
-import {createRouter, createWebHistory} from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import SignUpView from '../views/SignUpView.vue';
-import SignInView from '../views/SignInView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '@/views/HomeView.vue';
+import SignUpView from '@/views/SignUpView.vue';
+import SignInView from '@/views/SignInView.vue';
+import SettingsProfileView from '@/views/SettingsProfileView.vue';
+import SettingsProjectView from '@/views/SettingsProjectView.vue';
+import SettingsActivityView from '@/views/SettingsActivityView.vue';
+import SettingsProjectDetailsView from '@/views/SettingsProjectDetailsView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {path: '/', redirect: '/home'},
-    {path: '/home', component: HomeView},
-    {path: '/signup', component: SignUpView},
-    {path: '/signin', component: SignInView},
+    {
+      path: '/',
+      name: 'root',
+      redirect: '/home'
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeView
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: SignUpView
+    },
+    {
+      path: '/signin',
+      name: 'signin',
+      component: SignInView
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      redirect: '/settings/profile',
+      children: [
+        {
+          path: 'profile',
+          name: 'settings.profile',
+          component: SettingsProfileView
+        },
+        {
+          path: 'projects',
+          name: 'settings.projects',
+          component: SettingsProjectView,
+        },
+        {
+          path: 'activities',
+          name: 'settings.activities',
+          component: SettingsActivityView
+        }
+      ]
+    },
+    {
+      path: '/settings/projects/:id',
+      name: 'projet',
+      component: SettingsProjectDetailsView
+    }
   ],
 });
 
