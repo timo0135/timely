@@ -1,95 +1,58 @@
 <script setup>
-import {ref, watch} from 'vue';
-import {useAuthStore} from "@/stores/authentification.js";
-import router from "@/router/index.js";
-import FormComponent from "@/components/form/FormComponent.vue";
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/authentification.js';
+import { VContainer, VRow, VCol, VTextField, VBtn, VCard, VCardTitle, VCardText } from 'vuetify/components';
 
 const store = useAuthStore();
 
 const name = ref('');
 const email = ref('');
-const apiKey = ref('');
 
-const fields = [
-  {name: 'name', label: 'Name', type: 'text', required: true, model: name},
-  {name: 'email', label: 'Email', type: 'email', required: true, model: email}
-];
-const signUp = async () => {
+const signUp = () => {
   try {
-    console.log(email.value, name.value);
-    await store.register(email.value, name.value);
-    apiKey.value = store.user.apikey;
-    await router.push('/home');
+    store.register(email.value, name.value);
     console.log(store.user);
   } catch (error) {
     console.error(error);
   }
 };
-
-
-watch(() => store.user.apikey, (newApiKey) => {
-  apiKey.value = newApiKey;
-});
 </script>
 
 <template>
-  <div>
-    <h2>Sign Up</h2>
-    <FormComponent :fields="fields" :onSubmit="signUp"/>
-    <p class="blue" @click="router.push('/signin')">Déjà un compte ?</p>
-  </div>
+  <v-container class="fill-height">
+    <v-row align="center" justify="center">
+      <v-col cols="12" md="6">
+        <v-card>
+          <v-card-title>
+            <h2>Sign Up</h2>
+          </v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="signUp">
+              <v-text-field
+                v-model="name"
+                label="Name"
+                type="text"
+                required
+                variant="outlined"
+              />
+              <v-text-field
+                v-model="email"
+                label="Email"
+                type="email"
+                required
+                variant="outlined"
+              />
+              <v-btn type="submit" color="primary">Sign Up</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <style scoped>
-div {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: #333;
-}
-
-form div {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-}
-
-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.blue {
-  cursor: pointer;
-  color: #007bff;
+.fill-height {
+  height: 100vh;
 }
 </style>
