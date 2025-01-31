@@ -2,9 +2,15 @@
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import {useAuthStore} from "@/stores/authentification.js";
 
 const showMenu = ref(false);
 const router = useRouter();
+const store = useAuthStore();
+
+const isAuthenticated = () => {
+  return store.isAuthenticated;
+};
 
 const toggleMenu = () => {
   showMenu.value = !showMenu.value;
@@ -22,8 +28,14 @@ const navigateTo = (path) => {
     <div class="icon-container">
       <font-awesome-icon :icon="['fas', 'user']" class="icon" @click="toggleMenu"/>
       <div :class="['dropdown-menu', { show: showMenu }]">
-        <button @click="navigateTo('/signup')">Sign Up</button>
-        <button @click="navigateTo('/signin')">Sign In</button>
+        <template v-if="isAuthenticated()">
+          <button @click="navigateTo('/settings')">Settings</button>
+          <button @click="store.logout()" class="logout">Logout</button>
+        </template>
+        <template v-else>
+          <button @click="navigateTo('/signin')">Sign In</button>
+          <button @click="navigateTo('/signup')">Sign Up</button>
+        </template>
       </div>
     </div>
   </header>
@@ -56,10 +68,17 @@ header {
   color: #007bff;
 }
 
+.logout {
+  color: red;
+}
+
 .dropdown-menu {
   position: absolute;
   top: 2.5rem;
   right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: white;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
@@ -80,12 +99,13 @@ header {
   display: block;
   white-space: nowrap;
   width: 100%;
-  padding: 0.75rem 1rem;
-  text-align: left;
+  padding: 1rem 1.25rem;
+  text-align: center;
   background: none;
   border: none;
   cursor: pointer;
   transition: background 0.3s;
+  font-size: 1rem;
 }
 
 .dropdown-menu button:hover {
