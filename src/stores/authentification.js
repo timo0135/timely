@@ -1,6 +1,5 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 import axios from 'axios';
-import router from "@/router/index.js";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -15,7 +14,7 @@ export const useAuthStore = defineStore('auth', {
   }),
   actions: {
     login(key) {
-      axios.get('https://timely.edu.netlor.fr/api/profile', {
+      axios.get('https://timely.edu.netlor.fr/api/profile',{
         headers: {
           Authorization: `key=${key}`,
           "Content-Type": "application/json"
@@ -56,7 +55,23 @@ export const useAuthStore = defineStore('auth', {
       this.user.email = null;
       this.user.name = null;
       this.isAuthenticated = false;
-      router.push('/signin');
+    },
+    update(email, name){
+      axios.put('https://timely.edu.netlor.fr/api/profile', {
+        email: email,
+        name: name
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `key=${this.user.apikey}`
+        }
+      }).then(response => {
+        this.user.email = response.data.email;
+        this.user.name = response.data.name;
+      }).catch(error => {
+        this.errors = error;
+        console.error(error);
+      });
     }
   },
   persist: {
