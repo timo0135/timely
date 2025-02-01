@@ -2,8 +2,6 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import api from './plugins/api';
 import piniaPersist from 'pinia-plugin-persist';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {faEye, faEyeSlash, faGear, faPencilAlt, faUser} from '@fortawesome/free-solid-svg-icons';
 
 // Vuetify
 import 'vuetify/styles';
@@ -31,13 +29,6 @@ const vuetify = createVuetify({
 const app = createApp(App);
 const pinia = createPinia();
 pinia.use(piniaPersist);
-
-// Icons
-library.add(faUser);
-library.add(faPencilAlt);
-library.add(faEye);
-library.add(faEyeSlash);
-library.add(faGear);
 
 app.use(api, {
   baseUrl: import.meta.env.VITE_API_BASE_URL,
