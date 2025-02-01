@@ -1,18 +1,32 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authentification.js';
-import { VContainer, VRow, VCol, VTextField, VBtn, VCard, VCardTitle, VCardText } from 'vuetify/components';
+import {
+  VContainer,
+  VRow,
+  VCol,
+  VTextField,
+  VBtn,
+  VCard,
+  VCardTitle,
+  VCardText,
+  VSnackbar
+} from 'vuetify/components';
 
 const store = useAuthStore();
 
 const name = ref('');
 const email = ref('');
 
-const signUp = () => {
+const snackbar = ref(false);
+const snackbarMessage = ref('');
+const signUp = async () => {
   try {
-    store.register(email.value, name.value);
+    await store.register(email.value, name.value);
     console.log(store.user);
   } catch (error) {
+    snackbarMessage.value = error.message || 'An error occurred during login';
+    snackbar.value = true;
     console.error(error);
   }
 };
@@ -48,6 +62,9 @@ const signUp = () => {
         </v-card>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" :timeout="3000" color="red" location="top right">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-container>
 </template>
 

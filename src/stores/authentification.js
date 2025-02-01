@@ -13,41 +13,45 @@ export const useAuthStore = defineStore('auth', {
     errors: null
   }),
   actions: {
-    login(key) {
-      axios.get('https://timely.edu.netlor.fr/api/profile',{
-        headers: {
-          Authorization: `key=${key}`,
-          "Content-Type": "application/json"
-        }
-      }).then(response => {
+    async login(key) {
+      try {
+        const response = await axios.get('https://timely.edu.netlor.fr/api/profile', {
+          headers: {
+            Authorization: `key=${key}`,
+            "Content-Type": "application/json"
+          }
+        });
         this.user.id = response.data.id;
         this.user.apikey = key;
         this.user.email = response.data.email;
         this.user.name = response.data.name;
         this.isAuthenticated = true;
-      }).catch(error => {
+      } catch (error) {
         this.errors = error;
         console.error(error);
-      });
+        throw new Error(error.response.data.errors.message);
+      }
     },
-    register(email, name) {
-      axios.post('https://timely.edu.netlor.fr/api/apikeys', {
-        email: email,
-        name: name
-      }, {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }).then(response => {
+    async register(email, name) {
+      try {
+        const response = await axios.post('https://timely.edu.netlor.fr/api/apikeys', {
+          email: email,
+          name: name
+        }, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
         this.user.id = response.data.id;
         this.user.apikey = response.data.key;
         this.user.email = response.data.email;
         this.user.name = response.data.name;
         this.isAuthenticated = true;
-      }).catch(error => {
+      } catch (error) {
         this.errors = error;
-        console.error(error);
-      });
+        console.error('error', error);
+        throw new Error(error.response.data.errors);
+      }
     },
     logout() {
       this.user.id = null;
@@ -56,22 +60,24 @@ export const useAuthStore = defineStore('auth', {
       this.user.name = null;
       this.isAuthenticated = false;
     },
-    update(email, name){
-      axios.put('https://timely.edu.netlor.fr/api/profile', {
-        email: email,
-        name: name
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `key=${this.user.apikey}`
-        }
-      }).then(response => {
+    async update(email, name) {
+      try {
+        const response = await axios.put('https://timely.edu.netlor.fr/api/profile', {
+          email: email,
+          name: name
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `key=${this.user.apikey}`
+          }
+        });
         this.user.email = response.data.email;
         this.user.name = response.data.name;
-      }).catch(error => {
+      } catch (error) {
         this.errors = error;
         console.error(error);
-      });
+        throw new Error(error.response.data.errors);
+      }
     }
   },
   persist: {

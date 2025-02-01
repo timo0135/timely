@@ -2,6 +2,7 @@
 import {ref, nextTick} from 'vue';
 import SettingsHeaderComponent from '@/components/settings/SettingsHeaderComponent.vue';
 import {useAuthStore} from '@/stores/authentification';
+import {VSnackbar} from "vuetify/components";
 
 const store = useAuthStore();
 const isEditing = ref({
@@ -17,6 +18,9 @@ const values = {
 const nameField = ref(null);
 const emailField = ref(null);
 
+const snackbar = ref(false);
+const snackbarMessage = ref('');
+
 const toggleEdit = async (field) => {
   isEditing.value[field] = !isEditing.value[field];
   await nextTick();
@@ -29,12 +33,14 @@ const toggleEdit = async (field) => {
   }
 };
 
-const save = () => {
+const save = async () => {
   try {
-    store.update(values.email, values.name);
+    await store.update(values.email, values.name);
     isEditing.value.name = false;
     isEditing.value.email = false;
   } catch (error) {
+    snackbarMessage.value = error.message || 'An error occurred during login';
+    snackbar.value = true;
     console.error(error);
   }
 };
@@ -97,6 +103,9 @@ const save = () => {
         </v-form>
       </v-card-text>
     </v-card>
+    <v-snackbar v-model="snackbar" :timeout="3000" color="red" location="top right">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-container>
 </template>
 
