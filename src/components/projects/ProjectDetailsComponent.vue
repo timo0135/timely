@@ -1,6 +1,5 @@
 <script setup>
 import { defineProps, defineEmits, ref, nextTick, watch } from 'vue';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { VContainer, VCard, VCardTitle, VCardText, VTextField, VBtn, VRow, VCol } from 'vuetify/components';
 import SettingsHeaderComponent from "@/components/settings/SettingsHeaderComponent.vue";
 
@@ -62,7 +61,7 @@ const save = () => {
                 ref="nameField"
               >
                 <template v-slot:append>
-                  <font-awesome-icon :icon="['fas', 'pencil-alt']" class="ml-2 icon" @click="toggleEdit('name')" />
+                  <v-icon class="ml-2 icon" @click="toggleEdit('name')">mdi-pencil</v-icon>
                 </template>
               </v-text-field>
             </v-col>
@@ -76,7 +75,7 @@ const save = () => {
                 ref="descriptionField"
               >
                 <template v-slot:append>
-                  <font-awesome-icon :icon="['fas', 'pencil-alt']" class="ml-2 icon" @click="toggleEdit('description')" />
+                  <v-icon class="ml-2 icon" @click="toggleEdit('description')">mdi-pencil</v-icon>
                 </template>
               </v-text-field>
             </v-col>
@@ -86,10 +85,10 @@ const save = () => {
           </v-row>
         </v-form>
         <v-btn v-if="localProject.is_enabled === true || localProject.is_enabled === 1" @click="$emit('disable', localProject.id)">
-          <font-awesome-icon :icon="['fas', 'eye-slash']" class="icon" />
+          <v-icon class="icon">mdi-eye-off</v-icon>
         </v-btn>
         <v-btn v-else @click="$emit('enable', localProject.id)">
-          <font-awesome-icon :icon="['fas', 'eye']" class="icon" />
+          <v-icon class="icon">mdi-eye</v-icon>
         </v-btn>
       </v-card-text>
     </v-card>

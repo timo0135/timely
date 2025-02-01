@@ -1,12 +1,11 @@
 <script setup>
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 </script>
 
 <template>
   <v-container>
     <v-row>
       <v-col>
-        <h1 class="text-h4">Settings <font-awesome-icon :icon="['fas', 'gear']" /></h1>
+        <h1 class="text-h4">Settings <v-icon>mdi-cog</v-icon></h1>
       </v-col>
     </v-row>
     <v-row>

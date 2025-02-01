@@ -1,6 +1,5 @@
 <script setup>
 import { defineProps } from 'vue';
-import ProjectComponent from '@/components/projects/ProjectComponent.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -11,26 +10,34 @@ defineProps({
 function goToProjectDetail(id) {
   router.push(`/settings/projects/${id}`);
 }
+
+function getProjectClass(project) {
+  return project.is_enabled === 0 ? 'disabled-project' : '';
+}
 </script>
 
 <template>
-  <v-container>
-    <v-row>
-      <v-col
-        v-for="project in projects"
-        :key="project.id"
-        cols="12"
-        md="6"
-        lg="4"
-      >
-        <ProjectComponent
-          :project="project"
-          @click="goToProjectDetail(project.id)"
-        />
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-list-item
+    v-for="project in projects"
+    :key="project.id"
+    @click="goToProjectDetail(project.id)"
+    :class="getProjectClass(project)"
+  >
+    <v-list-item-title>{{ project.name }}</v-list-item-title>
+  </v-list-item>
 </template>
 
 <style scoped>
+.v-list-item {
+  cursor: pointer;
+  border-bottom: black 1px solid;
+}
+
+.v-list-item:hover {
+  background-color: #f0f0f0;
+}
+
+.disabled-project {
+  opacity: 0.5;
+}
 </style>

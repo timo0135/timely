@@ -1,7 +1,6 @@
 <script setup>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {useAuthStore} from "@/stores/authentification.js";
 
 const showMenu = ref(false);
@@ -26,7 +25,7 @@ const navigateTo = (path) => {
   <header>
     <h1 @click="navigateTo('/')" class="title">Timely</h1>
     <div class="icon-container">
-      <font-awesome-icon :icon="['fas', 'user']" class="icon" @click="toggleMenu"/>
+      <v-icon @click="toggleMenu" size="x-large">mdi-account</v-icon>
       <div :class="['dropdown-menu', { show: showMenu }]">
         <template v-if="isAuthenticated()">
           <button @click="navigateTo('/settings')">Settings</button>

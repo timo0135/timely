@@ -62,8 +62,7 @@ const save = () => {
                 ref="nameField"
               >
                 <template v-slot:append>
-                  <font-awesome-icon :icon="['fas', 'pencil-alt']" class="ml-2 icon"
-                                     @click="toggleEdit('name')"/>
+                  <v-icon class="icon" @click="toggleEdit('name')">mdi-pencil</v-icon>
                 </template>
               </v-text-field>
             </v-col>
@@ -78,8 +77,7 @@ const save = () => {
                 ref="emailField"
               >
                 <template v-slot:append>
-                  <font-awesome-icon :icon="['fas', 'pencil-alt']" class="ml-2 icon"
-                                     @click="toggleEdit('email')"/>
+                  <v-icon class="icon" @click="toggleEdit('email')">mdi-pencil</v-icon>
                 </template>
               </v-text-field>
             </v-col>
