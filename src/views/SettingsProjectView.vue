@@ -88,14 +88,7 @@ const numberOfPages = computed(() => Math.ceil(totalProjects.value / itemsPerPag
       <v-col cols="12">
         <v-card>
           <v-card-title>
-            <v-row>
-              <v-col cols="12" md="6">
-                <h2>Projets</h2>
-              </v-col>
-              <v-col cols="12" md="6" class="d-flex justify-end">
-                <v-btn icon="mdi-plus" @click="createProjectDialog = true"></v-btn>
-              </v-col>
-            </v-row>
+            <h2>Projets</h2>
           </v-card-title>
           <v-card-text>
             <v-text-field
@@ -111,6 +104,9 @@ const numberOfPages = computed(() => Math.ceil(totalProjects.value / itemsPerPag
               v-model="page"
               :length="numberOfPages"
             />
+            <v-col cols="12" class="d-flex justify-end">
+              <v-btn icon="mdi-plus" @click="createProjectDialog = true"></v-btn>
+            </v-col>
           </v-card-text>
         </v-card>
       </v-col>

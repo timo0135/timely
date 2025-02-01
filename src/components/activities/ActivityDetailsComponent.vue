@@ -67,7 +67,6 @@ const save = () => {
                 v-model="localActivity.color"
                 hide-canvas
                 mode="hexa"
-                ref="colorField"
                 class="flex-grow-1"
                 hide-inputs
               />
