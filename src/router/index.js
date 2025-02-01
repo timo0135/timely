@@ -6,6 +6,7 @@ import SettingsProfileView from '@/views/SettingsProfileView.vue';
 import SettingsProjectView from '@/views/SettingsProjectView.vue';
 import SettingsActivityView from '@/views/SettingsActivityView.vue';
 import SettingsProjectDetailsView from '@/views/SettingsProjectDetailsView.vue';
+import { useAuthStore } from '@/stores/authentification.js';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,24 +39,56 @@ const router = createRouter({
         {
           path: 'profile',
           name: 'settings.profile',
-          component: SettingsProfileView
+          component: SettingsProfileView,
+          beforeEnter: (to, from, next) => {
+            const store = useAuthStore();
+            if (!store.isAuthenticated) {
+              next({ name: 'signin' });
+            } else {
+              next();
+            }
+          }
         },
         {
           path: 'projects',
           name: 'settings.projects',
           component: SettingsProjectView,
+          beforeEnter: (to, from, next) => {
+            const store = useAuthStore();
+            if (!store.isAuthenticated) {
+              next({ name: 'signin' });
+            } else {
+              next();
+            }
+          }
         },
         {
           path: 'activities',
           name: 'settings.activities',
-          component: SettingsActivityView
+          component: SettingsActivityView,
+          beforeEnter: (to, from, next) => {
+            const store = useAuthStore();
+            if (!store.isAuthenticated) {
+              next({ name: 'signin' });
+            } else {
+              next();
+            }
+          }
         }
       ]
     },
     {
       path: '/settings/projects/:id',
       name: 'projet',
-      component: SettingsProjectDetailsView
+      component: SettingsProjectDetailsView,
+      beforeEnter: (to, from, next) => {
+        const store = useAuthStore();
+        if (!store.isAuthenticated) {
+          next({ name: 'signin' });
+        } else {
+          next();
+        }
+      }
     }
   ],
 });
