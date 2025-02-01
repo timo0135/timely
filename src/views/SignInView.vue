@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authentification.js';
+import { useRouter } from "vue-router";
 import { VContainer, VRow, VCol, VTextField, VBtn, VCard, VCardTitle, VCardText, VSnackbar } from 'vuetify/components';
 
 const apikey = ref('');
 const store = useAuthStore();
+const router = useRouter();
 
 const snackbar = ref(false);
 const snackbarMessage = ref('');
@@ -12,7 +14,7 @@ const snackbarMessage = ref('');
 const signIn = async () => {
   try {
     await store.login(apikey.value);
-    console.log(store.user);
+    await router.push('/');
   } catch (error) {
     snackbarMessage.value = error.message || 'An error occurred during login';
     snackbar.value = true;

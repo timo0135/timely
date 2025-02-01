@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authentification.js';
+import { useRouter } from 'vue-router';
 import {
   VContainer,
   VRow,
@@ -14,6 +15,7 @@ import {
 } from 'vuetify/components';
 
 const store = useAuthStore();
+const router = useRouter();
 
 const name = ref('');
 const email = ref('');
@@ -23,7 +25,7 @@ const snackbarMessage = ref('');
 const signUp = async () => {
   try {
     await store.register(email.value, name.value);
-    console.log(store.user);
+    await router.push('/');
   } catch (error) {
     snackbarMessage.value = error.message || 'An error occurred during login';
     snackbar.value = true;
