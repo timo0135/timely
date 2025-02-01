@@ -2,7 +2,6 @@
 import {ref, nextTick} from 'vue';
 import SettingsHeaderComponent from '@/components/settings/SettingsHeaderComponent.vue';
 import {useAuthStore} from '@/stores/authentification';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 const store = useAuthStore();
 const isEditing = ref({
