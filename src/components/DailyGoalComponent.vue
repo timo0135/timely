@@ -1,9 +1,9 @@
 <script setup>
 
 import FormComponent from "@/components/form/FormComponent.vue";
-import DailyGoalDetailsComponent from "@/components/DailyGoalDetailsComponent.vue";
-import {computed, getCurrentInstance, onMounted, ref} from "vue";
-import {VCol, VSnackbar} from "vuetify/components";
+import {computed, getCurrentInstance, onMounted, ref, watch} from "vue";
+import {VCol, VPagination, VSnackbar} from "vuetify/components";
+import DailyGoalListComponent from "@/components/DailyGoalListComponent.vue";
 
 const fields = [
   {name: 'name', label: 'Nom', type: 'text', required: true},
@@ -17,12 +17,19 @@ const showCompleted = ref(false);
 const createDailyGoalDialog = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref('');
+const itemsPerPage = ref(5);
+const page = ref(1);
 
 
 const getGoals = async () => {
   try {
     const response = await api.get('/api/daily-objectives');
-    goals.value = response.data;
+    let g = response.data;
+    if(showCompleted.value){
+      goals.value = g;
+    }else{
+      goals.value = g.filter(goal => goal.done === 0);
+    }
   } catch (error) {
     console.error(error);
     snackbarMessage.value = error.response.data.errors || 'An error occurred fetching daily goals';
@@ -48,13 +55,25 @@ const addGoal = async (modelFields) => {
   }
 };
 
+const paginatedGoals = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+
+  return filteredGoals.value.slice(start, end);
+});
+
 const filteredGoals = computed(() => {
   return goals.value.filter(goal => {
     return goal.name.toLowerCase().includes(searchQuery.value.toLowerCase()) && (showCompleted.value || !goal.completed);
   });
 });
 
+const totalProjects = computed(() => goals.value.length);
+const numberOfPages = computed(() => Math.ceil(totalProjects.value / itemsPerPage.value));
+
 onMounted(getGoals);
+
+watch(showCompleted, getGoals);
 
 </script>
 
@@ -67,13 +86,15 @@ onMounted(getGoals);
             <h2>Objectifs journaliers</h2>
           </v-card-title>
           <v-card-text>
-            <v-text-field v-model="searchQuery" placeholder="Rechercher un objectif" variant="outlined"/>
+            <v-text-field v-model="searchQuery" label="Rechercher un objectif" variant="outlined"/>
             <v-checkbox v-model="showCompleted" label="Afficher les objectifs complétés"/>
-            <ul>
-              <li v-for="goal in filteredGoals" :key="goal.id">
-                <DailyGoalDetailsComponent :goal="goal"/>
-              </li>
-            </ul>
+            <v-list>
+              <DailyGoalListComponent :goals="paginatedGoals"/>
+            </v-list>
+            <v-pagination
+              v-model="page"
+              :length="numberOfPages"
+            />
           </v-card-text>
           <v-col cols="12" class="d-flex justify-end">
             <v-btn icon="mdi-plus" @click="createDailyGoalDialog = true"></v-btn>
