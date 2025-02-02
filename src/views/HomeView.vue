@@ -1,82 +1,37 @@
 <script setup>
 import {ref, computed, onMounted, getCurrentInstance} from 'vue';
 import TimeTracker from "@/components/TimeTracker.vue";
-import DailyGoal from "@/components/DailyGoal.vue";
+import DailyGoal from "@/components/DailyGoalDetailsComponent.vue";
 import FormComponent from "@/components/form/FormComponent.vue";
+// import HomeHeaderComponent from "@/components/home/HomeHeaderComponent.vue";
+import { VContainer, VWindow, VWindowItem, VCardTitle, VCardText } from 'vuetify/components';
+import DailyGoalComponent from "@/components/DailyGoalComponent.vue";
 
-const name = ref('');
-const description = ref('');
-const searchQuery = ref('');
-const showCompleted = ref(false);
-const goals = ref([]);
-const currentView = ref('daily-goals');
-const api = getCurrentInstance().appContext.config.globalProperties.$api();
+const tab = ref('one');
+// const drawer = ref(false);
 
-const fields = [
-  {name: 'name', label: 'Nom', type: 'text', required: true},
-  {name: 'description', label: 'Description', type: 'text', required: true}
-];
-const getGoals = async () => {
-  try {
-    const response = await api.get('/api/daily-objectives');
-    goals.value = response.data;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const addGoal = async () => {
-  try {
-    const response = await api.post('/api/daily-objectives', {
-      name: name.value,
-      content: description.value
-    });
-    goals.value.push(response.data);
-    name.value = '';
-    description.value = '';
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const filteredGoals = computed(() => {
-  return goals.value.filter(goal => {
-    return goal.name.toLowerCase().includes(searchQuery.value.toLowerCase()) && (showCompleted.value || !goal.completed);
-  });
-});
-
-onMounted(getGoals);
 </script>
 
 <template>
-  <div class="home-container">
-    <aside class="sidebar">
-      <button @click="currentView = 'time-tracker'">Time Tracker</button>
-      <button @click="currentView = 'daily-goals'">Daily Goals</button>
-    </aside>
-    <main class="main-content">
-      <TimeTracker v-if="currentView === 'time-tracker'"/>
-      <div class="daily-goals-container" v-else-if="currentView === 'daily-goals'">
-        <div class="top-bar">
-          <h2>Objectifs journaliers</h2>
-          <div class="search-bar">
-            <input type="text" v-model="searchQuery" placeholder="Rechercher un objectif"/>
-          </div>
-        </div>
-        <div class="goals-container">
-          <div>
-            <h2>Ajouter un objectif</h2>
-            <FormComponent :on-submit="addGoal" :fields="fields"/>
-          </div>
-          <ul>
-            <li v-for="goal in filteredGoals" :key="goal.id">
-              <DailyGoal :goal="goal"/>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </main>
-  </div>
+  <v-container>
+<!--    <HomeHeaderComponent/>-->
+    <v-tabs v-model="tab" grow>
+      <v-tab value="one">Objectif Quotidien</v-tab>
+      <v-tab value="two">Time Tracker</v-tab>
+    </v-tabs>
+    <v-window v-model="tab">
+      <v-window-item value="one">
+        <DailyGoalComponent />
+      </v-window-item>
+      <v-window-item value="two">
+        <v-card-title>Time Tracker</v-card-title>
+        <v-card-text>
+          <TimeTracker />
+        </v-card-text>
+
+      </v-window-item>
+    </v-window>
+  </v-container>
 
 </template>
 

@@ -1,19 +1,24 @@
 <script setup>
-import { defineProps } from 'vue';
-// import {marked} from 'marked';
+import {defineProps, onMounted, ref} from 'vue';
+import {marked} from 'marked';
 
-defineProps({
+const props = defineProps({
   goal: {
     type: Object,
     required: true
   }
 });
+const content = ref('')
+
+onMounted(async () => {
+  content.value = await marked(props.goal.content, {async: true})
+})
 </script>
 
 <template>
   <div>
     <h3>{{ goal.name }}</h3>
-    <p v-html="marked(goal.content)"></p>
+    <div v-html="content"></div>
     <p>Date de création: {{ goal.date }}</p>
   </div>
 </template>

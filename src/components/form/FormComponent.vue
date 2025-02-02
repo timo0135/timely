@@ -1,75 +1,86 @@
 <script setup>
 
+import {ref} from "vue";
+import {VColorPicker} from "vuetify/components";
+
 const props = defineProps({
   fields: {
     type: Array,
     required: true
   },
-  onSubmit: {
-    type: Function,
+  title: {
+    type: String,
     required: true
   }
 });
 
+const localFields = ref(props.fields.map(field => {
+  return {
+    ...field,
+    model: ''
+  };
+}));
+
+const emit = defineEmits(['submit']);
+
 const handleSubmit = (event) => {
   event.preventDefault();
-  props.onSubmit();
+  let modelFields = localFields.value.map(field => {
+    return {
+      name: field.name,
+      value: field.model
+    };
+  });
+  emit('submit', modelFields);
 };
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div v-for="field in fields" :key="field.name">
-      <label :for="field.name">{{ field.label }}</label>
-      <input
-        :type="field.type"
-        :id="field.name"
-        :name="field.name"
-        v-model="field.model"
-        :required="field.required"
-      />
-    </div>
-    <button type="submit">Soumettre</button>
-  </form>
+  <v-container>
+    <v-card>
+      <v-card-title>
+        <h2>{{ title }}</h2>
+      </v-card-title>
+      <v-card-text>
+        <form @submit.prevent="handleSubmit">
+          <div v-for="field in localFields" :key="field.name">
+            <v-textarea
+              v-if="field.type === 'textarea'"
+              :label="field.label"
+              :id="field.name"
+              v-model="field.model"
+              :required="field.required"
+              variant="outlined"
+            />
+            <v-color-picker
+              v-else-if="field.type === 'color'"
+              :label="field.label"
+              :id="field.name"
+              v-model="field.model"
+              :required="field.required"
+              mode="hexa"
+              hide-inputs
+              hide-canvas
+            />
+            <v-text-field
+              v-else
+              :label="field.label"
+              :id="field.name"
+              v-model="field.model"
+              :type="field.type"
+              :required="field.required"
+              variant="outlined"
+            />
+          </div>
+        </form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn type="submit" color="primary" @click="handleSubmit">Submit</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-container>
 </template>
 
 <style scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-div {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-}
-
-button {
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
 </style>
