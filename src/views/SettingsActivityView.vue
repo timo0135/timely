@@ -11,7 +11,8 @@ import {
   VCardTitle,
   VCardText,
   VPagination,
-  VSnackbar
+  VSnackbar,
+  VProgressCircular
 } from "vuetify/components";
 import FormCreateActivityComponent from "@/components/activities/FormCreateActivityComponent.vue";
 
@@ -22,10 +23,12 @@ const itemsPerPage = ref(5);
 const createActivityDialog = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref('');
+const loading = ref(true);
 
 const api = getCurrentInstance().appContext.config.globalProperties.$api();
 
 const fetchProjects = (searchQuery) => {
+  loading.value = true;
   api.get('/api/activities', {
     params: {
       keywords: searchQuery,
@@ -33,11 +36,13 @@ const fetchProjects = (searchQuery) => {
   })
     .then((response) => {
       activities.value = response.data;
+      loading.value = false;
     })
     .catch((error) => {
       console.error(error);
       snackbarMessage.value = error.response.data.errors || 'An error occurred fetching activities';
       snackbar.value = true;
+      loading.value = false;
     });
 };
 
@@ -78,7 +83,7 @@ const numberOfPages = computed(() => Math.ceil(totalActivities.value / itemsPerP
 
 <template>
   <v-container>
-    <SettingsHeaderComponent />
+    <SettingsHeaderComponent/>
     <v-row>
       <v-col cols="12">
         <v-card>
@@ -92,8 +97,14 @@ const numberOfPages = computed(() => Math.ceil(totalActivities.value / itemsPerP
               variant="outlined"
               clearable
             />
-            <v-list>
-              <ActivityListComponent :activities="paginatedActivities" />
+            <div v-if="loading" class="progress-container">
+              <v-progress-circular
+                indeterminate
+                color="primary"
+              />
+            </div>
+            <v-list v-else>
+              <ActivityListComponent :activities="paginatedActivities"/>
             </v-list>
             <v-pagination
               v-model="page"
@@ -107,7 +118,7 @@ const numberOfPages = computed(() => Math.ceil(totalActivities.value / itemsPerP
       </v-col>
     </v-row>
     <v-dialog v-model="createActivityDialog" max-width="50em">
-      <FormCreateActivityComponent @create="createActivity" />
+      <FormCreateActivityComponent @create="createActivity"/>
     </v-dialog>
     <v-snackbar v-model="snackbar" :timeout="3000" color="red" location="top right">
       {{ snackbarMessage }}
@@ -116,4 +127,10 @@ const numberOfPages = computed(() => Math.ceil(totalActivities.value / itemsPerP
 </template>
 
 <style scoped>
+.progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
 </style>

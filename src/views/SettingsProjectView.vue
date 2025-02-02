@@ -10,7 +10,7 @@ import {
   VCardTitle,
   VCardText,
   VCard,
-  VPagination, VSnackbar
+  VPagination, VSnackbar, VProgressCircular
 } from 'vuetify/components';
 import FormCreateProjectComponent from "@/components/projects/FormCreateProjectComponent.vue";
 
@@ -21,6 +21,7 @@ const itemsPerPage = ref(5);
 const createProjectDialog = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref('');
+const loading = ref(true);
 
 const api = getCurrentInstance().appContext.config.globalProperties.$api();
 
@@ -32,11 +33,13 @@ const fetchProjects = (searchQuery) => {
   })
     .then((response) => {
       projects.value = response.data;
+      loading.value = false;
     })
     .catch((error) => {
       console.error(error);
       snackbarMessage.value = error.response.data.errors || 'An error occurred fetching projects';
       snackbar.value = true;
+      loading.value = false;
     });
 };
 
@@ -59,10 +62,12 @@ const createProject = (name, description) => {
 onMounted(() => {
   api.get('/api/projects').then((response) => {
     projects.value = response.data;
+    loading.value = false;
   }).catch((error) => {
     console.error(error);
     snackbarMessage.value = error.response.data.errors || 'An error occurred fetching projects';
     snackbar.value = true;
+    loading.value = false;
   });
 });
 
@@ -97,7 +102,13 @@ const numberOfPages = computed(() => Math.ceil(totalProjects.value / itemsPerPag
               variant="outlined"
               clearable
             />
-            <v-list>
+            <div v-if="loading" class="progress-container">
+              <v-progress-circular
+                indeterminate
+                color="primary"
+              />
+            </div>
+            <v-list v-else>
               <ProjectListComponent :projects="paginatedProjects" />
             </v-list>
             <v-pagination
@@ -121,4 +132,10 @@ const numberOfPages = computed(() => Math.ceil(totalProjects.value / itemsPerPag
 </template>
 
 <style scoped>
+.progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
 </style>
