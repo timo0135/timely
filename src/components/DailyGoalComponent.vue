@@ -55,6 +55,46 @@ const addGoal = async (modelFields) => {
   }
 };
 
+const updateGoal = (id, name, content) => {
+  api.put(`/api/daily-objectives/${id}`, {
+    name: name,
+    content: content
+  }).then(
+    getGoals()
+  ).catch(error => {
+    console.error(error);
+  });
+};
+
+const doneAGoal = (id) => {
+  api.patch(`/api/daily-objectives/${id}/done`).then(
+    response => {
+      goals.value = goals.value.filter(goal => goal.id !== response.data.id);
+      getGoals()
+    }
+  ).catch(error => {
+    console.error(error);
+  });
+};
+
+const undoneAGoal = (id) => {
+  api.patch(`/api/daily-objectives/${id}/undone`).then( response => {
+    goals.value = goals.value.filter(goal => goal.id !== response.data.id);
+    getGoals()
+  }).catch(error => {
+    console.error(error);
+  });
+};
+
+const deleteGoal = (id) => {
+  api.delete(`/api/daily-objectives/${id}`).then( response => {
+    goals.value = goals.value.filter(goal => goal.id !== response.data.id);
+    getGoals() // Mise à jour de la liste des objectifs
+  }).catch(error => {
+    console.error(error);
+  });
+};
+
 const paginatedGoals = computed(() => {
   const start = (page.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
@@ -89,7 +129,7 @@ watch(showCompleted, getGoals);
             <v-text-field v-model="searchQuery" label="Rechercher un objectif" variant="outlined"/>
             <v-checkbox v-model="showCompleted" label="Afficher les objectifs complétés"/>
             <v-list>
-              <DailyGoalListComponent :goals="paginatedGoals"/>
+              <DailyGoalListComponent :goals="paginatedGoals" @update="updateGoal" @delete="deleteGoal" @done="doneAGoal" @undone="undoneAGoal"/>
             </v-list>
             <v-pagination
               v-model="page"

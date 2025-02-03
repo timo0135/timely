@@ -1,5 +1,5 @@
 <script setup>
-import {defineProps, onMounted, ref} from 'vue';
+import {defineProps, onMounted, ref, watch} from 'vue';
 import {marked} from 'marked';
 
 const props = defineProps({
@@ -8,10 +8,39 @@ const props = defineProps({
     required: true
   }
 });
+
+const emit = defineEmits(['update', 'delete', 'done', 'undone']);
 const content = ref('')
+const localGoal = ref({
+  id: props.goal.id,
+  name: props.goal.name,
+  content: props.goal.content,
+  date: props.goal.date,
+  done: props.goal.done === 1
+})
+
+const save = () => {
+  emit('update', localGoal.value.id, localGoal.value.name, localGoal.value.content)
+}
+
+const deleteGoal = () => {
+  emit('delete', localGoal.value.id)
+}
 
 onMounted(async () => {
-  content.value = await marked(props.goal.content, {async: true})
+  content.value = await marked(localGoal.value.content, {async: true})
+})
+
+watch(() => localGoal.value.content, async () => {
+  content.value = await marked(localGoal.value.content, {async: true})
+})
+
+watch(() => localGoal.value.done, () => {
+  if(localGoal.value.done){
+    emit('undone', localGoal.value.id)
+  }else{
+    emit('done', localGoal.value.id)
+  }
 })
 </script>
 
@@ -19,23 +48,43 @@ onMounted(async () => {
   <v-container>
     <v-card>
       <v-card-title style="text-align: center">Objectif journalier</v-card-title>
-      <div>
-        <v-card-title>Informations (Visuel) :</v-card-title>
-        <h2>{{ goal.name }}</h2>
-        <div class="content" v-html="content"></div>
-        <p>Date de création: {{ goal.date }}</p>
-      </div>
-      <div>
-        <v-card-title>Commentaires</v-card-title>
-        <v-card>
-          <v-card-title>Commentaire 1</v-card-title>
-          <p>Contenu du commentaire 1</p>
-        </v-card>
-        <v-card>
-          <v-card-title>Commentaire 2</v-card-title>
-          <p>Contenu du commentaire 2</p>
-        </v-card>
-      </div>
+      <v-row>
+        <v-col cols="6">
+          <div>
+            <v-card-title>Informations (Visuel) :</v-card-title>
+            <h2>{{ localGoal.name }}</h2>
+            <div class="content" v-html="content"></div>
+            <p>Date de création: {{ localGoal.date }}</p>
+          </div>
+          <v-checkbox v-model="localGoal.done" label="Objectif complété"></v-checkbox>
+        </v-col>
+        <v-col cols="6">
+          <v-card-title>Informations (Texte) :</v-card-title>
+          <v-form @submit.prevent="save">
+            <v-text-field
+              v-model="localGoal.name"
+              label="Nom"
+              variant="outlined"
+            ></v-text-field>
+            <v-textarea
+              v-model="localGoal.content"
+              label="Description"
+              variant="outlined"
+            ></v-textarea>
+            <v-text-field
+              v-model="localGoal.date"
+              label="Date de création"
+              variant="outlined"
+              readonly
+            ></v-text-field>
+          </v-form>
+        </v-col>
+      </v-row>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="error" @click="deleteGoal">Supprimer</v-btn>
+        <v-btn color="primary" @click="save">Enregistrer</v-btn>
+      </v-card-actions>
     </v-card>
   </v-container>
 </template>

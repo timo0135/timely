@@ -10,10 +10,30 @@ defineProps({
 const dialogGoalDetails = ref(false);
 const selectedGoal = ref(null);
 
+const emit = defineEmits(['update', 'delete', 'done', 'undone']);
 const openDialog = (goal) => {
   selectedGoal.value = goal;
   dialogGoalDetails.value = true;
 };
+
+const update = (id, name, content) => {
+  emit('update', id, name, content);
+  dialogGoalDetails.value = false;
+};
+
+const deleteGoal = (id) => {
+  emit('delete', id);
+  dialogGoalDetails.value = false;
+};
+
+const done = (id) => {
+  emit('done', id);
+};
+
+const undone = (id) => {
+  emit('undone', id);
+};
+
 </script>
 
 <template>
@@ -27,8 +47,8 @@ const openDialog = (goal) => {
     </v-list-item>
   </v-list>
 
-  <v-dialog v-model="dialogGoalDetails" max-width="50em">
-    <DailyGoalDetailsComponent :goal="selectedGoal" />
+  <v-dialog v-model="dialogGoalDetails" max-width="90em">
+    <DailyGoalDetailsComponent :goal="selectedGoal" @update="update" @delete="deleteGoal" @done="done" @undone="undone" />
   </v-dialog>
 </template>
 
