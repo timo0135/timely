@@ -3,7 +3,7 @@
 import FormComponent from "@/components/form/FormComponent.vue";
 import {computed, getCurrentInstance, onMounted, ref, watch} from "vue";
 import {VCol, VPagination, VSnackbar} from "vuetify/components";
-import DailyGoalListComponent from "@/components/DailyGoalListComponent.vue";
+import DailyGoalListComponent from "@/components/daily-objectif/DailyGoalListComponent.vue";
 
 const fields = [
   {name: 'name', label: 'Nom', type: 'text', required: true},

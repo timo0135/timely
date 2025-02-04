@@ -1,7 +1,7 @@
 <script setup>
 import { VList, VListItem, VListItemTitle, VDialog } from "vuetify/components";
 import { ref } from "vue";
-import DailyGoalDetailsComponent from "@/components/DailyGoalDetailsComponent.vue";
+import DailyGoalDetailsComponent from "@/components/daily-objectif/DailyGoalDetailsComponent.vue";
 
 defineProps({
   goals: Array,

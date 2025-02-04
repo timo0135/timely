@@ -1,8 +1,8 @@
 <script setup>
 import {ref} from 'vue';
-import TimeTracker from "@/components/TimeTracker.vue";
+import TimeTracker from "@/components/time-tracker/TimeTracker.vue";
 import { VContainer, VWindow, VWindowItem, VCardTitle, VCardText } from 'vuetify/components';
-import DailyGoalComponent from "@/components/DailyGoalComponent.vue";
+import DailyGoalComponent from "@/components/daily-objectif/DailyGoalComponent.vue";
 
 const tab = ref('one');
 // const drawer = ref(false);
