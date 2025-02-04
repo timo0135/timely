@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from 'vue';
-import TimeTracker from "@/components/time-tracker/TimeTracker.vue";
+import TimeTrackerComponent from "@/components/time-tracker/TimeTrackerComponent.vue";
 import { VContainer, VWindow, VWindowItem, VCardTitle, VCardText } from 'vuetify/components';
 import DailyGoalComponent from "@/components/daily-objectif/DailyGoalComponent.vue";
 
@@ -23,7 +23,7 @@ const tab = ref('one');
       <v-window-item value="two">
         <v-card-title>Time Tracker</v-card-title>
         <v-card-text>
-          <TimeTracker />
+          <TimeTrackerComponent />
         </v-card-text>
 
       </v-window-item>

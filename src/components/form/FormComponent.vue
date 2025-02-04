@@ -17,7 +17,7 @@ const props = defineProps({
 const localFields = ref(props.fields.map(field => {
   return {
     ...field,
-    model: ''
+    model: field.model !== undefined ? field.model : ''
   };
 }));
 
@@ -52,6 +52,18 @@ const handleSubmit = (event) => {
               :required="field.required"
               variant="outlined"
             />
+            <v-select
+              v-else-if="field.type === 'select'"
+              :label="field.label"
+              :id="field.name"
+              v-model="field.model"
+              :items="field.items"
+              :item-title="field.itemText"
+              :item-value="field.itemValue"
+              :required="field.required"
+              variant="outlined"
+            />
+
             <v-color-picker
               v-else-if="field.type === 'color'"
               :label="field.label"
@@ -76,7 +88,7 @@ const handleSubmit = (event) => {
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn type="submit" color="primary" @click="handleSubmit">Submit</v-btn>
+        <v-btn type="submit" color="primary" @click="handleSubmit">Enregistrer</v-btn>
       </v-card-actions>
     </v-card>
   </v-container>
