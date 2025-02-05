@@ -15,12 +15,28 @@ const router = createRouter({
     {
       path: '/',
       name: 'root',
-      redirect: '/home'
+      redirect: '/home',
+      beforeEnter: (to, from, next) => {
+        const store = useAuthStore();
+        if (!store.isAuthenticated) {
+          next({ name: 'signin' });
+        } else {
+          next();
+        }
+      }
     },
     {
       path: '/home',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      beforeEnter: (to, from, next) => {
+        const store = useAuthStore();
+        if (!store.isAuthenticated) {
+          next({ name: 'signin' });
+        } else {
+          next();
+        }
+      }
     },
     {
       path: '/signup',
