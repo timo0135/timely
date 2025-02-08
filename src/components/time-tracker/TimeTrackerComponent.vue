@@ -50,13 +50,17 @@ const startActivity = (modelFields) => {
 const getCurrentEntries = () => {
   api.get('/api/time-entries').then(response => {
     const now = new Date();
-    const validEntries = response.data.filter(entry => {
-      const endDate = new Date(entry.end);
-      return entry.end === "0000-00-00 00:00:00" || endDate > now;
-    });
-    if (validEntries.length > 0) {
-      currentTimeEntries.value = validEntries[validEntries.length - 1];
-      startTimer();
+    const lastEntry = response.data[response.data.length - 1];
+    if (lastEntry) {
+      const endDate = new Date(lastEntry.end);
+      if (lastEntry.end === "0000-00-00 00:00:00" || endDate > now) {
+        currentTimeEntries.value = lastEntry;
+        startTimer();
+      } else {
+        currentTimeEntries.value = {};
+        clearInterval(timerInterval);
+        timer.value = 0;
+      }
     } else {
       currentTimeEntries.value = {};
       clearInterval(timerInterval);
@@ -93,6 +97,19 @@ const fetchActivities = () => {
   }).catch(error => {
     console.error(error);
     snackbarMessage.value = error.response.data.errors || 'An error occurred fetching activities';
+    snackbar.value = true;
+  });
+};
+
+const stopTimer = () => {
+  api.patch(`/api/time-entries/${currentTimeEntries.value.id}/stop`
+  ).then(() => {
+    clearInterval(timerInterval);
+    timer.value = 0;
+    currentTimeEntries.value = {};
+  }).catch(error => {
+    console.error(error);
+    snackbarMessage.value = error.response.data.errors || 'An error occurred stopping timer';
     snackbar.value = true;
   });
 };
@@ -139,8 +156,9 @@ watch([projects, activities], () => {
                           </v-col>
                         </v-row>
                         <v-row>
-                          <v-col cols="12" class="timer-display">
+                          <v-col cols="12" class="timer-display d-flex justify-end align-center">
                             <p>{{ String(Math.floor(timer / 3600)).padStart(2, '0') }}:{{ String(Math.floor((timer % 3600) / 60)).padStart(2, '0') }}:{{ String(timer % 60).padStart(2, '0') }}</p>
+                            <v-btn icon="mdi-stop" @click="stopTimer" class="ml-5"></v-btn>
                           </v-col>
                         </v-row>
                       </v-col>
