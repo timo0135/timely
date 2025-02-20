@@ -2,6 +2,7 @@
 import { VCol, VPagination, VSnackbar } from "vuetify/components";
 import FormComponent from "@/components/form/FormComponent.vue";
 import { getCurrentInstance, onMounted, ref, watch } from "vue";
+import {marked} from "marked";
 
 const createTimeTrackerDialog = ref(false);
 const snackbar = ref(false);
@@ -12,8 +13,10 @@ const api = getCurrentInstance().appContext.config.globalProperties.$api();
 const projects = ref([]);
 const activities = ref([]);
 const currentTimeEntries = ref({});
+const currentTimeEntriesVModel = ref({});
 const timer = ref(0);
 let timerInterval = null;
+const contentMd = ref('');
 
 const fields = ref([
   { name: 'project', label: 'Projet', type: 'select', required: true, items: [], itemText: 'name', itemValue: 'id' },
@@ -36,7 +39,7 @@ const startActivity = (modelFields) => {
     start: startField.value,
     end: endField.value,
     comment: commentField.value
-  }).then((response) => {
+  }).then(() => {
     fetchProjects();
     fetchActivities();
     createTimeTrackerDialog.value = false;
@@ -48,13 +51,19 @@ const startActivity = (modelFields) => {
 };
 
 const getCurrentEntries = () => {
-  api.get('/api/time-entries').then(response => {
+  api.get('/api/time-entries').then(async response => {
     const now = new Date();
     const lastEntry = response.data[response.data.length - 1];
     if (lastEntry) {
       const endDate = new Date(lastEntry.end);
       if (lastEntry.end === "0000-00-00 00:00:00" || endDate > now) {
         currentTimeEntries.value = lastEntry;
+        if (!contentMd.value) {
+          contentMd.value = await marked(currentTimeEntries.value.comment, {async: true});
+        }
+        if (Object.keys(currentTimeEntriesVModel.value).length === 0) {
+          currentTimeEntriesVModel.value = { ...currentTimeEntries.value };
+        }
         startTimer();
       } else {
         currentTimeEntries.value = {};
@@ -114,16 +123,22 @@ const stopTimer = () => {
   });
 };
 
-onMounted(() => {
+onMounted(async () => {
   fetchProjects();
   fetchActivities();
   setInterval(getCurrentEntries, 1000);
+
 });
 
 watch([projects, activities], () => {
   fields.value[0].items = projects.value;
   fields.value[1].items = activities.value;
 });
+
+watch(() => currentTimeEntriesVModel.value.comment, async (newComment) => {
+  contentMd.value = await marked(newComment, {async: true});
+});
+
 </script>
 
 <template>
@@ -138,21 +153,33 @@ watch([projects, activities], () => {
             <v-row>
               <v-col cols="12">
                 <v-card>
-                  <v-card-title>
+                  <v-card-title class="d-flex justify-space-between align-center">
                     <h3>Activité en cours</h3>
+                    <div v-if="Object.keys(currentTimeEntries).length > 0" class="d-flex justify-space-between align-center">
+                      <p>Début: {{ currentTimeEntries.start }}</p>
+                      <p v-if="currentTimeEntries.end==='0000-00-00 00:00:00'" class="ml-5">Fin: Non définie</p>
+                      <p v-else class="ml-5">Fin: {{ currentTimeEntries.end }}</p>
+                    </div>
                   </v-card-title>
                   <v-card-text>
                     <v-row v-if="Object.keys(currentTimeEntries).length > 0">
                       <v-col cols="12">
                         <v-row>
                           <v-col cols="6">
-                            <p>Project: {{ currentTimeEntries.project_id }}</p>
-                            <p>Activity: {{ currentTimeEntries.activity_id }}</p>
-                            <p>Start: {{ currentTimeEntries.start }}</p>
-                            <p>End: {{ currentTimeEntries.end }}</p>
+                            <div>
+                              <v-card-title>Informations (Visuel) :</v-card-title>
+                              <div class="content" v-html="contentMd"></div>
+                            </div>
                           </v-col>
                           <v-col cols="6">
-                            <p>Comment: {{ currentTimeEntries.comment }}</p>
+                            <v-card-title>Informations (Texte) :</v-card-title>
+                            <v-form @submit.prevent="">
+                              <v-textarea
+                                v-model="currentTimeEntriesVModel.comment"
+                                label="Description"
+                                variant="outlined"
+                              ></v-textarea>
+                            </v-form>
                           </v-col>
                         </v-row>
                         <v-row>
@@ -161,6 +188,9 @@ watch([projects, activities], () => {
                             <v-btn icon="mdi-stop" @click="stopTimer" class="ml-5"></v-btn>
                           </v-col>
                         </v-row>
+                        <v-card-actions>
+                          <v-btn color="primary">Sauvegarder</v-btn>
+                        </v-card-actions>
                       </v-col>
                     </v-row>
                     <v-row v-else>
@@ -192,5 +222,12 @@ watch([projects, activities], () => {
 .timer-display {
   font-size: 2em;
   text-align: right;
+}
+.content {
+  margin-bottom: 1rem;
+  min-height: 10rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
 }
 </style>
