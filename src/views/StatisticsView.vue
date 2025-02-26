@@ -19,6 +19,12 @@ const snackbar = ref(false);
 const snackbarMessage = ref('');
 const snackbarColor = ref('red');
 
+const fetchActivityDetails = async (activityId) => {
+  const apiInstance = api();
+  const {data} = await apiInstance.get(`/api/activities/${activityId}`);
+  return data;
+};
+
 const fetchStatistics = async () => {
   const apiInstance = api();
 
@@ -45,13 +51,8 @@ const fetchStatistics = async () => {
     data.forEach(entry => {
       const duration = (new Date(entry.end) - new Date(entry.start)) / 3600000;
 
-      if (!isNaN(duration)) {
-        projectsMap.set(entry.project_id, (projectsMap.get(entry.project_id) || 0) + duration);
-
-        if (entry.project_id === selectedProject.value || !selectedProject.value) {
-          activitiesMap.set(entry.activity_id, (activitiesMap.get(entry.activity_id) || 0) + duration);
-        }
-      }
+      projectsMap.set(entry.project_id, (projectsMap.get(entry.project_id) || 0) + duration);
+      activitiesMap.set(entry.activity_id, (activitiesMap.get(entry.activity_id) || 0) + duration);
     });
 
     let projectIndex = 1;
@@ -68,15 +69,20 @@ const fetchStatistics = async () => {
 
     let activityIndex = 1;
     const activityNames = new Map();
-    activityStats.value = Array.from(activitiesMap, ([id, duration]) => {
+    activityStats.value = await Promise.all(Array.from(activitiesMap, async ([id, duration]) => {
+      const activityDetails = await fetchActivityDetails(id);
+      console.log(activityDetails);
       const name = `Activité ${activityIndex++}`;
+      const color = activityDetails.color || '#eae3e3';
       activityNames.set(id, name);
       return {
         id,
         name,
-        duration
+        duration,
+        color
       };
-    });
+    }));
+    console.log(activityStats.value);
 
     timeEntries.value = data.map(entry => ({
       ...entry,
@@ -150,14 +156,9 @@ const formatDuration = (hours) => {
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col cols="12" md="6" v-if="selectedProject">
-          <v-card
-            class="mx-auto text-center"
-            color="secondary"
-            max-width="600"
-            dark
-          >
+      <v-row class="d-flex justify-center">
+        <v-col cols="12" md="8" v-if="activityStats.length > 0 && !selectedProject">
+          <v-card class="mx-auto text-center" color="secondary" dark>
             <v-card-text>
               <v-sheet color="rgba(0, 0, 0, .12)">
                 <v-sparkline
@@ -169,7 +170,8 @@ const formatDuration = (hours) => {
                   smooth
                 >
                   <template v-slot:label="item">
-                    {{ formatDuration(item.value) }}
+                    {{ activityStats[item.index].name }}:
+                    {{ formatDuration(item.value).split(' ')[0] }}
                   </template>
                 </v-sparkline>
               </v-sheet>
@@ -177,19 +179,17 @@ const formatDuration = (hours) => {
 
             <v-card-text>
               <div class="text-h4 font-weight-thin">
-                Activités
+                Par type d'activité
               </div>
             </v-card-text>
 
             <v-divider></v-divider>
-
           </v-card>
         </v-col>
-        <v-col cols="12" md="6" v-if="selectedProject">
+        <v-col cols="12" md="8" v-if="selectedProject">
           <v-card
             class="mx-auto text-center"
             color="secondary"
-            max-width="600"
             dark
           >
             <v-card-text>
@@ -211,7 +211,7 @@ const formatDuration = (hours) => {
 
             <v-card-text>
               <div class="text-h4 font-weight-thin">
-                Activités dupliquées
+                {{ projectStats.find(p => p.id === selectedProject).name }}
               </div>
             </v-card-text>
 
