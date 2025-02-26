@@ -185,6 +185,40 @@ const formatDuration = (hours) => {
 
           </v-card>
         </v-col>
+        <v-col cols="12" md="6" v-if="selectedProject">
+          <v-card
+            class="mx-auto text-center"
+            color="secondary"
+            max-width="600"
+            dark
+          >
+            <v-card-text>
+              <v-sheet color="rgba(0, 0, 0, .12)">
+                <v-sparkline
+                  :model-value="activityStats.map(a => a.duration)"
+                  color="rgba(255, 255, 255, .7)"
+                  height="100"
+                  padding="24"
+                  stroke-linecap="round"
+                  smooth
+                >
+                  <template v-slot:label="item">
+                    {{ formatDuration(item.value) }}
+                  </template>
+                </v-sparkline>
+              </v-sheet>
+            </v-card-text>
+
+            <v-card-text>
+              <div class="text-h4 font-weight-thin">
+                Activités dupliquées
+              </div>
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+          </v-card>
+        </v-col>
       </v-row>
 
       <v-table>
