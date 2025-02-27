@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from "@/stores/authentification.js";
 
@@ -25,67 +25,13 @@ const logout = () => {
   navigateTo('/signin');
 };
 
-// Timer functionality
-const timer = ref(0);
-const isRunning = ref(false);
-let timerInterval = null;
 
-const startTimer = () => {
-  if (!isRunning.value) {
-    isRunning.value = true;
-    timerInterval = setInterval(() => {
-      timer.value++;
-    }, 1000);
-  }
-};
-
-const stopTimer = () => {
-  if (isRunning.value) {
-    isRunning.value = false;
-    clearInterval(timerInterval);
-  }
-};
-
-const resetTimer = () => {
-  stopTimer();
-  timer.value = 0;
-};
-
-const formattedTime = computed(() => {
-  const hours = Math.floor(timer.value / 3600).toString().padStart(2, '0');
-  const minutes = Math.floor((timer.value % 3600) / 60).toString().padStart(2, '0');
-  const seconds = (timer.value % 60).toString().padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
-});
-
-// Mock data for current activity and goals
-const currentActivity = ref('Project A - Task 1');
-const totalHoursToday = ref(5);
-const goalsAchievedToday = ref(3);
-const totalGoalsToday = ref(5);
-
-onMounted(() => {
-  // Initialize or fetch data if needed
-});
 </script>
 
 <template>
   <header>
     <h1 @click="navigateTo('/')" class="title">Timely</h1>
-    <div class="timer">
-      <p>{{ formattedTime }}</p>
-      <v-icon @click="isRunning ? stopTimer() : startTimer()">
-        {{ isRunning ? 'mdi-pause' : 'mdi-play' }}
-      </v-icon>
-      <v-icon @click="resetTimer">mdi-stop</v-icon>
-    </div>
-    <div class="activity-info">
-      <span>{{ currentActivity }}</span>
-      <span>{{ totalHoursToday }}</span>
-      <span>{{ goalsAchievedToday }} / {{ totalGoalsToday }}</span>
-    </div>
     <nav>
-      <button @click="navigateTo('/activities')">Activities</button>
       <button @click="navigateTo('/statistics')">Statistics</button>
     </nav>
     <div class="icon-container">

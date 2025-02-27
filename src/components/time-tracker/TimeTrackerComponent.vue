@@ -1,14 +1,13 @@
 <script setup>
-import { VCol, VPagination, VSnackbar } from "vuetify/components";
+import {VCol, VSnackbar, VTextField} from "vuetify/components";
 import FormComponent from "@/components/form/FormComponent.vue";
-import { getCurrentInstance, onMounted, ref, watch } from "vue";
+import {computed, getCurrentInstance, onMounted, ref, watch} from "vue";
 import {marked} from "marked";
+import EntriesListComponent from "@/components/time-tracker/EntriesListComponent.vue";
 
 const createTimeTrackerDialog = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref('');
-const itemsPerPage = ref(5);
-const page = ref(1);
 const api = getCurrentInstance().appContext.config.globalProperties.$api();
 const projects = ref([]);
 const activities = ref([]);
@@ -17,6 +16,9 @@ const currentTimeEntriesVModel = ref({});
 const timer = ref(0);
 let timerInterval = null;
 const contentMd = ref('');
+const timesEntries = ref([]);
+const searchQuery = ref('');
+
 
 const fields = ref([
   { name: 'project', label: 'Projet', type: 'select', required: true, items: [], itemText: 'name', itemValue: 'id' },
@@ -82,6 +84,21 @@ const getCurrentEntries = () => {
   });
 };
 
+const fetchEntries = () => {
+  api.get('/api/time-entries').then(response => {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    timesEntries.value = response.data.filter(entry => {
+      const endDate = new Date(entry.end);
+      return entry.end === "0000-00-00 00:00:00" || !entry.end || endDate.toISOString().split('T')[0] === today;
+    });
+  }).catch(error => {
+    console.error(error);
+    snackbarMessage.value = error.response.data.errors || 'An error occurred fetching time entries';
+    snackbar.value = true;
+  });
+};
+
 const startTimer = () => {
   clearInterval(timerInterval);
   const startTime = new Date(currentTimeEntries.value.start);
@@ -123,7 +140,15 @@ const stopTimer = () => {
   });
 };
 
+
+const filteredEntries = computed(() => {
+  return timesEntries.value.filter(entry => {
+    return entry.comment.toLowerCase().includes(searchQuery.value.toLowerCase());
+  });
+});
+
 onMounted(async () => {
+  fetchEntries();
   fetchProjects();
   fetchActivities();
   setInterval(getCurrentEntries, 1000);
@@ -188,9 +213,6 @@ watch(() => currentTimeEntriesVModel.value.comment, async (newComment) => {
                             <v-btn icon="mdi-stop" @click="stopTimer" class="ml-5"></v-btn>
                           </v-col>
                         </v-row>
-                        <v-card-actions>
-                          <v-btn color="primary">Sauvegarder</v-btn>
-                        </v-card-actions>
                       </v-col>
                     </v-row>
                     <v-row v-else>
@@ -205,6 +227,22 @@ watch(() => currentTimeEntriesVModel.value.comment, async (newComment) => {
           </v-card-text>
           <v-col cols="12" class="d-flex justify-end">
             <v-btn icon="mdi-plus" @click="createTimeTrackerDialog = true"></v-btn>
+          </v-col>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <h3>Historique des activités du jour</h3>
+              </v-card-title>
+              <v-card-text>
+                <v-text-field
+                  v-model="searchQuery"
+                  label="Search entries"
+                  variant="outlined"
+                  clearable
+                />
+                <EntriesListComponent :entries="filteredEntries"/>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-card>
       </v-col>
